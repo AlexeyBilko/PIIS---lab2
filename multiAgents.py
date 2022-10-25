@@ -111,32 +111,35 @@ class MinimaxAgent(MultiAgentSearchAgent):
     Your minimax agent (question 2)
     """
 
-    def algorithm(self, state, depth, agentIndex):
-        if depth == 0 or state.isWin() or state.isLose():
+    def algorithm(self, state, depth, index):
+        if depth == 0:
+            return (self.evaluationFunction(state), None)
+        if state.isWin() or state.isLose():
             return (self.evaluationFunction(state), None)
 
-        if agentIndex == 0:
+        if index == 0:
             maxScore = -float('inf')
             maxAction = None
 
-            for action in state.getLegalActions(agentIndex):
+            for action in state.getLegalActions(index):
                 currentScore = self.algorithm(
-                    state.generateSuccessor(agentIndex, action), depth, agentIndex + 1)
+                    state.generateSuccessor(index, action), depth, index + 1)
                 if currentScore[0] > maxScore:
                     maxScore = currentScore[0]
                     maxAction = action
 
             return (maxScore, maxAction)
-
         else:
-            isLastAgent = agentIndex == state.getNumAgents() - 1
+            if index == state.getNumAgents() - 1:
+                isLastAgent = True
+            else: isLastAgent = False
+
             minScore = float('inf')
             minAction = None
 
-            for action in state.getLegalActions(agentIndex):
+            for action in state.getLegalActions(index):
                 currentScore = self.algorithm(
-                    state.generateSuccessor(agentIndex, action), depth - 1 if isLastAgent else depth, 0 if isLastAgent else agentIndex + 1)
-
+                    state.generateSuccessor(index, action), depth - 1 if isLastAgent else depth, 0 if isLastAgent else index + 1)
                 if currentScore[0] < minScore:
                     minScore = currentScore[0]
                     minAction = action
@@ -176,17 +179,18 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         return self.algorithm(gameState, self.depth, 0, -float('inf'), float('inf'))[1]
     
-    def algorithm(self, state, depth, agentIndex, alpha, beta):
-        if depth == 0 or state.isWin() or state.isLose():
+    def algorithm(self, state, depth, index, alpha, beta):
+        if depth == 0:
+            return (self.evaluationFunction(state), None)
+        if  state.isWin() or state.isLose():
             return (self.evaluationFunction(state), None)
 
-        if agentIndex == 0:
+        if index == 0:
             maxScore = -float('inf')
             maxAction = None
 
-            for action in state.getLegalActions(agentIndex):
-                currentScore = self.algorithm(
-                    state.generateSuccessor(agentIndex, action), depth, agentIndex + 1, alpha, beta)
+            for action in state.getLegalActions(index):
+                currentScore = self.algorithm(state.generateSuccessor(index, action), depth, index + 1, alpha, beta)
 
                 if currentScore[0] > maxScore:
                     maxScore = currentScore[0]
@@ -196,17 +200,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                     break
 
                 alpha = max(maxScore, alpha)
-
             return (maxScore, maxAction)
-
         else:
-            isLastAgent = agentIndex == state.getNumAgents() - 1
+            isLastAgent = index == state.getNumAgents() - 1
             minScore = float('inf')
             minAction = None
 
-            for action in state.getLegalActions(agentIndex):
-                currentScore = self.algorithm(
-                    state.generateSuccessor(agentIndex, action), depth - 1 if isLastAgent else depth, 0 if isLastAgent else agentIndex + 1, alpha, beta)
+            for action in state.getLegalActions(index):
+                currentScore = self.algorithm(state.generateSuccessor(index, action), depth - 1 if isLastAgent else depth, 0 if isLastAgent else index + 1, alpha, beta)
 
                 if currentScore[0] < minScore:
                     minScore = currentScore[0]
@@ -214,9 +215,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
                 if minScore < alpha:
                     break
-
                 beta = min(minScore, beta)
-
             return (minScore, minAction)
 
 
@@ -234,36 +233,34 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         return self.algorithm(gameState, self.depth, 0)[1]
     
-    def algorithm(self, state, depth, agentIndex):
-        if depth == 0 or state.isWin() or state.isLose():
+    def algorithm(self, state, depth, index):
+        if depth == 0:
+            return (self.evaluationFunction(state), None)
+        if state.isWin() or state.isLose():
             return (self.evaluationFunction(state), None)
 
-        if agentIndex == 0:
+        if index == 0:
             maxScore = -float('inf')
             maxAction = None
 
-            for action in state.getLegalActions(agentIndex):
-                currentScore = self.algorithm(
-                    state.generateSuccessor(agentIndex, action), depth, agentIndex + 1)
+            for action in state.getLegalActions(index):
+                currentScore = self.algorithm(state.generateSuccessor(index, action), depth, index + 1)
 
                 if currentScore[0] > maxScore:
                     maxScore = currentScore[0]
                     maxAction = action
-
             return (maxScore, maxAction)
 
         else:
-            isLastAgent = agentIndex == state.getNumAgents() - 1
+            isLastAgent = index == state.getNumAgents() - 1
             minScore = 0
             minAction = None
 
-            for action in state.getLegalActions(agentIndex):
-                currentScore = self.algorithm(
-                    state.generateSuccessor(agentIndex, action), depth - 1 if isLastAgent else depth, 0 if isLastAgent else agentIndex + 1)
+            for action in state.getLegalActions(index):
+                currentScore = self.algorithm(state.generateSuccessor(index, action), depth - 1 if isLastAgent else depth, 0 if isLastAgent else index + 1)
 
-                minScore += 1 / len(state.getLegalActions(agentIndex)) * currentScore[0]
+                minScore += 1 / len(state.getLegalActions(index)) * currentScore[0]
                 minAction = action
-
             return (minScore, minAction)
 
 
